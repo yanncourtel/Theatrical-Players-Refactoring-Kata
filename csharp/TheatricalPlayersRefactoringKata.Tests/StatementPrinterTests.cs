@@ -10,36 +10,40 @@ namespace TheatricalPlayersRefactoringKata.Tests;
 
 public class StatementPrinterTests
 {
+    Dictionary<string, Play> plays = new()
+    {
+        { "hamlet", new Play("Hamlet", "tragedy") },
+        { "as-like", new Play("As You Like It", "comedy") },
+        { "henry-v", new Play("Henry V", "history") },
+        { "othello", new Play("Othello", "tragedy") },
+        { "aslike", new Play("As You Like It", "pastoral")}
+    };
+
     [Fact]
     [UseReporter(typeof(DiffReporter))]
     public void test_statement_example()
     {
-        var plays = new Dictionary<string, Play>();
-        plays.Add("hamlet", new Play("Hamlet", "tragedy"));
-        plays.Add("as-like", new Play("As You Like It", "comedy"));
-        plays.Add("othello", new Play("Othello", "tragedy"));
-
-        Invoice invoice = new Invoice("BigCo", new List<Performance>{new Performance("hamlet", 55),
-                new Performance("as-like", 35),
-                new Performance("othello", 40)});
-
+        Invoice invoice = new Invoice("BigCo", 
+            new List<Performance>{
+                new(55, plays["hamlet"]),
+                new(35, plays["as-like"]),
+                new(40, plays["othello"])});
         StatementPrinter statementPrinter = new StatementPrinter();
-        var result = statementPrinter.Print(invoice, plays);
+        var result = statementPrinter.Print(invoice);
 
         Approvals.Verify(result);
     }
     [Fact]
     public void test_statement_with_new_play_types()
     {
-        var plays = new Dictionary<string, Play>();
-        plays.Add("henry-v", new Play("Henry V", "history"));
-        plays.Add("as-like", new Play("As You Like It", "pastoral"));
-
-        Invoice invoice = new Invoice("BigCoII", new List<Performance>{new Performance("henry-v", 53),
-                new Performance("as-like", 55)});
+        Invoice invoice = new Invoice("BigCoII", new List<Performance>
+        {
+            new(53, plays["henry-v"]),
+            new(55, plays["as-like"])
+        });
 
         StatementPrinter statementPrinter = new StatementPrinter();
 
-        Assert.Throws<Exception>(() => statementPrinter.Print(invoice, plays));
+        Assert.Throws<Exception>(() => statementPrinter.Print(invoice));
     }
 }
